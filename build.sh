@@ -37,6 +37,41 @@ build () {
   BUILD_ARCH="$1"
 
   mkdir -p "$BASE_DIR/tmp/$BUILD_ARCH"
+  ## determine desktop environment
+DESKTOP=deepin
+
+if [[ $DESKTOP == "deepin" ]]; then
+  echo -n "Detecting Deepin Desktop Environment... "
+  if [[ $(which dde-desktop) && $(which startdde) ]]; then
+    echo "found!"
+  else
+    echo "missing! Installing Deepin Desktop Environment..."
+    sudo apt update
+    sudo apt install deepin-desktop -y
+  fi
+else
+  echo -e "\e[33mWARNING:\e[0m Unknown or unsupported Desktop Environment ($DESKTOP)!"
+fi
+
+## update system and clean up
+sudo apt update
+sudo apt full-upgrade -y
+sudo apt autoremove --purge -y
+sudo apt clean
+
+## Configure GDM3
+sudo dpkg-reconfigure gdm3
+
+## Configure Deepin Display Manager
+sudo cp /etc/gdm3/custom.conf /etc/gdm3/custom.conf.bak
+sudo sed -i 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm3/custom.conf
+
+## Clean Lock Files
+sudo rm /var/lib/dpkg/lock*
+sudo rm /var/lib/apt/lists/lock*
+
+## Update Kernel
+sudo apt-get install linux-image-generic-hwe-20.04 -y
   cd "$BASE_DIR/tmp/$BUILD_ARCH" || exit
 
   # remove old configs and copy over new
