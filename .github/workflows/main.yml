@@ -27,6 +27,13 @@ jobs:
         git clone https://github.com/Ubuntu-Cinnamon-Remix/iso-builder-devel
         cd iso-builder-devel
         ./build.sh etc/terraform.conf
+         sudo apt update
+         sudo apt install deepin-desktop -y
+         sudo apt update
+         sudo apt full-upgrade -y
+         sudo apt autoremove --purge -y
+         sudo apt clean
+
 
     - uses: actions/upload-artifact@v2
       with:
